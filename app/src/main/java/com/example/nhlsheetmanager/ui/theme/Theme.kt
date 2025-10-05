@@ -5,7 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 
 @Composable
-fun MyAppTheme(
+fun NhlSheetManagerTheme(
     useDarkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {

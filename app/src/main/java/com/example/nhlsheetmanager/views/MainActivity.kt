@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.nhlsheetmanager.repositories.NhlRepository
 import com.example.nhlsheetmanager.repositories.SheetsRepository
-import com.example.nhlsheetmanager.ui.theme.MyAppTheme
+import com.example.nhlsheetmanager.ui.theme.NhlSheetManagerTheme
 import com.example.nhlsheetmanager.viewModels.NhlUpdater
 import com.example.nhlsheetmanager.viewModels.NhlViewModel
 import com.example.nhlsheetmanager.viewModels.PreviewMockViewModel
@@ -55,9 +55,8 @@ class MainActivity : AppCompatActivity() {
         val nhlViewModel = NhlViewModel(nhlRepository, sheetsRepository)
 
         setContent {
-            MyAppTheme {
+            NhlSheetManagerTheme {
                 Surface(
-                    //modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     MainScreen(nhlViewModel)
