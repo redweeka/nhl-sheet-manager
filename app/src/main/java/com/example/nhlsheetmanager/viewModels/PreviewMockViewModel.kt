@@ -1,6 +1,7 @@
 package com.example.nhlsheetmanager.viewModels
 
 import com.example.nhlsheetmanager.data.Player
+import com.example.nhlsheetmanager.data.UpdateState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -17,6 +18,7 @@ class PreviewMockViewModel : NhlUpdater {
     )
 
     override val updatedPlayers: StateFlow<List<Player>> = _fakePlayers
+    override val updatedState: StateFlow<UpdateState> = MutableStateFlow(UpdateState.UP_TO_DATE)
 
     override fun updatePlayers() {
         // No-op or simulate update logic

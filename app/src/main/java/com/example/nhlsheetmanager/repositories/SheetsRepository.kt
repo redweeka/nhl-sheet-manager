@@ -2,7 +2,15 @@ package com.example.nhlsheetmanager.repositories
 
 import android.content.res.Resources
 import com.example.nhlsheetmanager.R
+import com.example.nhlsheetmanager.data.COLUMNS_SUM
+import com.example.nhlsheetmanager.data.END_DATA_COLUMN_INDEX
+import com.example.nhlsheetmanager.data.END_DATA_ROW_INDEX
+import com.example.nhlsheetmanager.data.POINTS_COLUMN_INDEX
 import com.example.nhlsheetmanager.data.Player
+import com.example.nhlsheetmanager.data.SPREADSHEET_ID
+import com.example.nhlsheetmanager.data.SPREADSHEET_SCOPE
+import com.example.nhlsheetmanager.data.START_DATA_COLUMN_INDEX
+import com.example.nhlsheetmanager.data.START_DATA_ROW_INDEX
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.JsonFactory
@@ -13,19 +21,9 @@ import com.google.auth.http.HttpCredentialsAdapter
 import com.google.auth.oauth2.GoogleCredentials
 import java.io.InputStream
 
-class SheetsRepository(val resources: Resources) {
+class SheetsRepository(private val resources: Resources) {
     private val TAG = this::class.simpleName
-
-    private val SCOPES = listOf("https://www.googleapis.com/auth/spreadsheets")
-    private val SPREADSHEET_ID = "17iSalI1ZMa_aJQ68Q0ZNJmBqL_cMfrrooLHnRLBDuDY"
-    private val START_DATA_ROW_INDEX = 2
-    private val END_DATA_ROW_INDEX = 50
-    private val START_DATA_COLUMN_INDEX = "A"
-    private val END_DATA_COLUMN_INDEX = "D"
-    private val COLUMNS_SUM = 4
-    private val POINTS_COLUMN_INDEX = "C"
-
-    val sheetsService = createSheetsService()
+    private val sheetsService = createSheetsService()
 
     fun getPlayers(): List<Player> {
         val players = mutableListOf<Player>()
@@ -44,7 +42,11 @@ class SheetsRepository(val resources: Resources) {
                 val playerName = rowValues[1].toString()
 
                 // C column is the player points
-                val playerPreviousPoints = rowValues[2].toString().toInt()
+                val playerPreviousPoints = try {
+                    rowValues[2].toString().toInt()
+                } catch (e: NumberFormatException) {
+                    0
+                }
 
                 // D column is the player id
                 val playerId = rowValues[3].toString()
@@ -59,7 +61,7 @@ class SheetsRepository(val resources: Resources) {
         return players
     }
 
-    fun updatePlayers(players: List<Player>) {
+    fun updateRemotePlayers(players: List<Player>) {
         players.forEach { player ->
             if (player.playerUpdatedPoints > player.playerPreviousPoints) {
                 // Wrap the data so it feat the sheet convention. i.e. [[data]]
@@ -77,7 +79,7 @@ class SheetsRepository(val resources: Resources) {
     private fun loadGoogleCredentials(): GoogleCredentials {
         val inputStream: InputStream = resources.openRawResource(R.raw.credentials)
 
-        return GoogleCredentials.fromStream(inputStream).createScoped(SCOPES)
+        return GoogleCredentials.fromStream(inputStream).createScoped(SPREADSHEET_SCOPE)
     }
 
     private fun createSheetsService(): Sheets {

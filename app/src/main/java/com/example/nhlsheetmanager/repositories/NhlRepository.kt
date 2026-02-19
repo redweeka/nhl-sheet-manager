@@ -13,7 +13,7 @@ class NhlRepository {
 
     // Function to get raw player data
     private fun getPlayerById(playerId: String): JsonObject? {
-        var player: JsonObject? = null
+        var playerJson: JsonObject? = null
         val url = "https://api-web.nhle.com/v1/player/$playerId/landing"
 
         val request = Request.Builder()
@@ -25,7 +25,7 @@ class NhlRepository {
                 if (response.isSuccessful) {
                     val responseBody = response.body?.string()
 
-                    player = responseBody?.let {
+                    playerJson = responseBody?.let {
                         Gson().fromJson(it, JsonObject::class.java)
                     }
                 } else {
@@ -38,11 +38,40 @@ class NhlRepository {
             Log.e(TAG, "getPlayerById: JSON parsing error: ", e)
         }
 
-        return player
+        return playerJson
     }
 
-    // Extract and return player points from nhl player json (detailed with debug logs due to nhl unstable apis)
-    fun getPlayerPointsById(playerId: String): Int {
+    private fun getCurrentSeason(): Long? {
+        var currentSeason: Long? = null
+        val url = "https://api-web.nhle.com/v1/season"
+
+        val request = Request.Builder()
+            .url(url)
+            .build()
+
+        try {
+            OkHttpClient().newCall(request).execute().use { response ->
+                if (response.isSuccessful) {
+                    val responseBody = response.body?.string()
+
+                    currentSeason = responseBody?.let {
+                        Gson().fromJson(it, Array<Long>::class.java)
+                    }?.lastOrNull()
+                } else {
+                    Log.e(TAG, "getCurrentSeason: Failed to retrieve data. Status code: ${response.code}")
+                }
+            }
+        } catch (e: IOException) {
+            Log.e(TAG, "getCurrentSeason: Network error: ", e)
+        } catch (e: JsonSyntaxException) {
+            Log.e(TAG, "getCurrentSeason: JSON parsing error: ", e)
+        }
+
+        return currentSeason
+    }
+
+    // Extract and return player points from nhl player json
+    fun getPlayerCurrentSeasonPointsById(playerId: String): Int {
         var playerPoints = 0
 
         val jsonData = getPlayerById(playerId)
@@ -51,42 +80,53 @@ class NhlRepository {
             val featuredStats = jsonData.getAsJsonObject("featuredStats")
 
             if (featuredStats != null) {
+                val currentSeason = getCurrentSeason()
+                val season = featuredStats.get("season").asLong
                 val regularSeason = featuredStats.getAsJsonObject("regularSeason")
-
-                if (regularSeason != null) {
-                    val subSeason = regularSeason.getAsJsonObject("subSeason")
-
-                    if (subSeason != null) {
-                        subSeason.get("points")?.let { points ->
-                            playerPoints = points.asInt
-                        }
-                    } else {
-                        Log.e(TAG, "getPlayerPointsById: The 'subSeason' field does not exist in the regularSeason JSON data.")
-                    }
-                } else {
-                    Log.e(TAG, "getPlayerPointsById: The 'regularSeason' field does not exist in the JSON data.")
-                }
-
                 val playoffs = featuredStats.getAsJsonObject("playoffs")
 
-                if (playoffs != null) {
-                    val subSeason = playoffs.getAsJsonObject("subSeason")
+                val isCurrentSeason = if (currentSeason != null) {
+                    season == currentSeason
+                } else {
+                    true
+                }
 
-                    if (subSeason != null) {
-                        subSeason.get("points")?.let { points ->
-                            playerPoints += points.asInt
+                if (isCurrentSeason) {
+                    if (regularSeason != null) {
+                        val subSeason = regularSeason.getAsJsonObject("subSeason")
+
+                        if (subSeason != null) {
+                            subSeason.get("points")?.let { points ->
+                                playerPoints = points.asInt
+                            }
+                        } else {
+                            Log.e(TAG, "getPlayerCurrentSeasonPointsById: The 'subSeason' field does not exist in the regularSeason JSON data.")
                         }
                     } else {
-                        Log.e(TAG, "getPlayerPointsById: The 'subSeason' field does not exist in the playoffs JSON data.")
+                        Log.e(TAG, "getPlayerCurrentSeasonPointsById: The 'regularSeason' field does not exist in the JSON data.")
+                    }
+
+                    if (playoffs != null) {
+                        val subSeason = playoffs.getAsJsonObject("subSeason")
+
+                        if (subSeason != null) {
+                            subSeason.get("points")?.let { points ->
+                                playerPoints += points.asInt
+                            }
+                        } else {
+                            Log.e(TAG, "getPlayerCurrentSeasonPointsById: The 'subSeason' field does not exist in the playoffs JSON data.")
+                        }
+                    } else {
+                        Log.e(TAG, "getPlayerCurrentSeasonPointsById: The 'playoffs' field does not exist in the JSON data.")
                     }
                 } else {
-                    Log.e(TAG, "getPlayerPointsById: The 'playoffs' field does not exist in the JSON data.")
+                    Log.e(TAG, "getPlayerCurrentSeasonPointsById: The player has not participated in this season")
                 }
             } else {
-                Log.e(TAG, "getPlayerPointsById: The 'featuredStats' field does not exist in the JSON data.")
+                Log.e(TAG, "getPlayerCurrentSeasonPointsById: The 'featuredStats' field does not exist in the JSON data.")
             }
         } else {
-            Log.e(TAG, "getPlayerPointsById: Player data not found")
+            Log.e(TAG, "getPlayerCurrentSeasonPointsById: Player data not found")
         }
 
         return playerPoints

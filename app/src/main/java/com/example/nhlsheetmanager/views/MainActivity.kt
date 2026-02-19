@@ -14,10 +14,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -26,15 +25,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.nhlsheetmanager.data.UpdateState
 import com.example.nhlsheetmanager.repositories.NhlRepository
 import com.example.nhlsheetmanager.repositories.SheetsRepository
 import com.example.nhlsheetmanager.ui.theme.NhlSheetManagerTheme
@@ -82,7 +79,7 @@ fun isNetworkAvailable(context: Context): Boolean {
 fun MainScreen(nhlViewModel: NhlUpdater) {
     val context = LocalContext.current
     val updatedPlayers by nhlViewModel.updatedPlayers.collectAsState()
-    var isLoading by remember { mutableStateOf(false) }
+    val updateState by nhlViewModel.updatedState.collectAsState()
 
     // Making the log lines
     val playersLines = remember(updatedPlayers) {
@@ -137,29 +134,17 @@ fun MainScreen(nhlViewModel: NhlUpdater) {
 
             // Make it as a line in the column
             result.add(pointsText)
-
-            // Announce end of update
-            isLoading = false
         }
 
         result
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(6.dp)
-    ) {
-        // Scrollable area takes up 50% of the screen
-        val halfScreen = LocalConfiguration.current.screenHeightDp.dp * 0.5f
-
-        Column(
-            modifier = Modifier
-                .height(halfScreen)
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+    Column(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+        LazyColumn(
+            modifier = Modifier.weight(1f).fillMaxWidth(),
+            reverseLayout = true
         ) {
-            playersLines.forEach { line ->
+            items(playersLines.reversed()) { line ->
                 Text(
                     text = line,
                     style = MaterialTheme.typography.titleLarge
@@ -168,9 +153,7 @@ fun MainScreen(nhlViewModel: NhlUpdater) {
         }
 
         Box(
-            modifier = Modifier
-                .height(halfScreen)
-                .fillMaxWidth(),
+            modifier = Modifier.weight(1f).fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
             Button(
@@ -180,7 +163,6 @@ fun MainScreen(nhlViewModel: NhlUpdater) {
                 onClick = {
                     if (isNetworkAvailable(context)) {
                         playersLines.clear()
-                        isLoading = true
                         nhlViewModel.updatePlayers()
                     } else {
                         Toast.makeText(context, "No network connection", Toast.LENGTH_SHORT).show()
@@ -189,9 +171,16 @@ fun MainScreen(nhlViewModel: NhlUpdater) {
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
-                enabled = !isLoading
+                enabled = updateState == UpdateState.UP_TO_DATE
             ) {
-                Text(if (isLoading) "Updating.." else "Update Data")
+                Text(
+                    when (updateState) {
+                        UpdateState.FETCHING_PLAYERS -> "Getting all players.."
+                        UpdateState.FETCHING_PLAYERS_POINTS -> "Getting updated players points.."
+                        UpdateState.UPDATING_PLAYERS_TO_SHEET -> "Writing players to sheet.."
+                        UpdateState.UP_TO_DATE -> "UPDATE"
+                    }
+                )
             }
         }
     }
@@ -199,6 +188,6 @@ fun MainScreen(nhlViewModel: NhlUpdater) {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewUpdateButton() {
+fun PreviewNhlSheetManagerApp() {
     MainScreen(PreviewMockViewModel())
 }
