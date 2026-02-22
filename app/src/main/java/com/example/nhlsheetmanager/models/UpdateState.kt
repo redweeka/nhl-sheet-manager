@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.data
+package com.example.nhlsheetmanager.models
 
 enum class UpdateState {
     FETCHING_PLAYERS,

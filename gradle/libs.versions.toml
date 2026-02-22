@@ -13,6 +13,7 @@ google-http-client = "1.41.1"
 google-auth = "1.18.0"
 google-sheets = "v4-rev610-1.25.0"
 okhttp = "4.11.0"
+workRuntimeKtx = "2.9.0"
 
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
@@ -32,6 +33,7 @@ google-http-client-android = { group = "com.google.http-client", name = "google-
 google-auth-oauth2 = { group = "com.google.auth", name = "google-auth-library-oauth2-http", version.ref = "google-auth" }
 google-sheets = { group = "com.google.apis", name = "google-api-services-sheets", version.ref = "google-sheets" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 
 [plugins]

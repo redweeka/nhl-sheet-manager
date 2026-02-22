@@ -45,21 +45,24 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.activity.compose)
+
     // Jetpack libraries(remove if no xml)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.material)
 
-    implementation(libs.androidx.activity.compose)
-
     // Jetpack Compose BOM
     implementation(platform(libs.androidx.compose.bom))
+
     // See preview when coding
     implementation(libs.androidx.ui.tooling)
     implementation(libs.androidx.ui.tooling.preview)
+
     // Core compose ui (i.e. Text)
     implementation(libs.androidx.ui)
+
     // Material ui (i.e. Button)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.constraintlayout.compose)
@@ -73,4 +76,7 @@ dependencies {
 
     // Networking
     implementation(libs.okhttp)
+
+    // Background actions
+    implementation(libs.androidx.work.runtime.ktx)
 }

@@ -1,29 +1,32 @@
 package com.example.nhlsheetmanager.viewModels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nhlsheetmanager.data.Player
-import com.example.nhlsheetmanager.data.UpdateState
-import com.example.nhlsheetmanager.repositories.NhlRepository
-import com.example.nhlsheetmanager.repositories.SheetsRepository
+import com.example.nhlsheetmanager.data.repositories.NhlRepository
+import com.example.nhlsheetmanager.data.repositories.SheetsRepository
+import com.example.nhlsheetmanager.models.Player
+import com.example.nhlsheetmanager.models.UpdateState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class NhlViewModel(private val nhlRepository: NhlRepository, private val sheetsRepository: SheetsRepository) : ViewModel(), NhlUpdater {
+class NhlViewModel(
+    private val nhlRepository: NhlRepository,
+    private val sheetsRepository: SheetsRepository
+) : ViewModel() {
     private val TAG = this::class.simpleName
 
     private val _updatedPlayers = MutableStateFlow<MutableList<Player>>(mutableListOf())
-    override val updatedPlayers: StateFlow<List<Player>> get() = _updatedPlayers
+    val updatedPlayers: StateFlow<List<Player>> get() = _updatedPlayers
 
     private val _updateState = MutableStateFlow(UpdateState.UP_TO_DATE)
-    override val updatedState: StateFlow<UpdateState> get() = _updateState
+    val updateState: StateFlow<UpdateState> get() = _updateState
 
-    override fun updatePlayers() {
+    fun updatePlayers() {
+        _updateState.value = UpdateState.FETCHING_PLAYERS
+
         viewModelScope.launch(Dispatchers.IO) {
-            _updateState.value = UpdateState.FETCHING_PLAYERS
             val notUpdatedPlayers = sheetsRepository.getPlayers()
 
             _updateState.value = UpdateState.FETCHING_PLAYERS_POINTS
@@ -37,8 +40,11 @@ class NhlViewModel(private val nhlRepository: NhlRepository, private val sheetsR
     }
 
     private fun updatePlayersOneByOne(notUpdatedPlayers: List<Player>) {
+        _updatedPlayers.value = mutableListOf()
+
         notUpdatedPlayers.forEach { player ->
-            player.playerUpdatedPoints = nhlRepository.getPlayerCurrentSeasonPointsById(player.playerId)
+            player.playerUpdatedPoints =
+                nhlRepository.getPlayerCurrentSeasonPointsById(player.playerId)
 
             _updatedPlayers.value = _updatedPlayers.value.toMutableList().apply {
                 add(player)

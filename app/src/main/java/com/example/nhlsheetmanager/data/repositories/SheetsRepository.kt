@@ -1,16 +1,16 @@
-package com.example.nhlsheetmanager.repositories
+package com.example.nhlsheetmanager.data.repositories
 
 import android.content.res.Resources
 import com.example.nhlsheetmanager.R
-import com.example.nhlsheetmanager.data.COLUMNS_SUM
-import com.example.nhlsheetmanager.data.END_DATA_COLUMN_INDEX
-import com.example.nhlsheetmanager.data.END_DATA_ROW_INDEX
-import com.example.nhlsheetmanager.data.POINTS_COLUMN_INDEX
-import com.example.nhlsheetmanager.data.Player
-import com.example.nhlsheetmanager.data.SPREADSHEET_ID
-import com.example.nhlsheetmanager.data.SPREADSHEET_SCOPE
-import com.example.nhlsheetmanager.data.START_DATA_COLUMN_INDEX
-import com.example.nhlsheetmanager.data.START_DATA_ROW_INDEX
+import com.example.nhlsheetmanager.models.COLUMNS_SUM
+import com.example.nhlsheetmanager.models.END_DATA_COLUMN_INDEX
+import com.example.nhlsheetmanager.models.END_DATA_ROW_INDEX
+import com.example.nhlsheetmanager.models.POINTS_COLUMN_INDEX
+import com.example.nhlsheetmanager.models.Player
+import com.example.nhlsheetmanager.models.SPREADSHEET_ID
+import com.example.nhlsheetmanager.models.SPREADSHEET_SCOPE
+import com.example.nhlsheetmanager.models.START_DATA_COLUMN_INDEX
+import com.example.nhlsheetmanager.models.START_DATA_ROW_INDEX
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
 import com.google.api.client.http.HttpRequestInitializer
 import com.google.api.client.json.JsonFactory

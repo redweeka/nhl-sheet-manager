@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.repositories
+package com.example.nhlsheetmanager.data.repositories
 
 import android.util.Log
 import com.google.gson.Gson

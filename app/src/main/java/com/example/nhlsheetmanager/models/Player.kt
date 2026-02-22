@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.data
+package com.example.nhlsheetmanager.models
 
 class Player(val playerId: String,
              val playerName: String,

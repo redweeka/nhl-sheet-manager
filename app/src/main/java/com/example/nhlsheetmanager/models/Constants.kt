@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.data
+package com.example.nhlsheetmanager.models
 
 const val SPREADSHEET_ID = "1ccpSsFUQhYyB32lUhnhx_FPqeIP7pdbty2uaBwofUQA"
 const val SPREADSHEET_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
