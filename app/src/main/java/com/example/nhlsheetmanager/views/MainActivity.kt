@@ -11,13 +11,18 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.nhlsheetmanager.data.repositories.NhlRepository
 import com.example.nhlsheetmanager.data.repositories.SheetsRepository
 import com.example.nhlsheetmanager.data.workers.NhlSheetUpdateWorker
 import com.example.nhlsheetmanager.models.NetworkUtils.isNetworkAvailable
 import com.example.nhlsheetmanager.models.PermissionsUtils.handlePermissions
+import com.example.nhlsheetmanager.models.TimeUtils.getInitialDelayForHourUtc
+import com.example.nhlsheetmanager.models.UPDATE_WORKER_ID
 import com.example.nhlsheetmanager.ui.theme.NhlSheetManagerTheme
 import com.example.nhlsheetmanager.viewModels.NhlViewModel
 import java.util.concurrent.TimeUnit
@@ -68,17 +73,32 @@ class MainActivity : AppCompatActivity() {
         handlePermissions(
             activity = this,
             onPermissionsGranted = {
-                scheduleNhlSheetUpdateWork(this)
+                Toast.makeText(this, "Scheduling!", Toast.LENGTH_LONG).show()
+                scheduleDaily10AmWorker(this)
             }
         )
     }
+}
 
-    private fun scheduleNhlSheetUpdateWork(context: Context) {
-        Toast.makeText(context, "Scheduling!", Toast.LENGTH_LONG).show()
+fun scheduleDaily10AmWorker(context: Context) {
+    val delay = getInitialDelayForHourUtc()
 
-        val nhlSheetUpdateRequest = OneTimeWorkRequestBuilder<NhlSheetUpdateWorker>()
-            .setInitialDelay(10, TimeUnit.SECONDS).build()
+    val dailyRequest =
+        PeriodicWorkRequestBuilder<NhlSheetUpdateWorker>(
+            24, TimeUnit.HOURS, 15, TimeUnit.MINUTES
+        )
+            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresBatteryNotLow(true)
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+            .build()
 
-        WorkManager.getInstance(context).enqueue(nhlSheetUpdateRequest)
-    }
+    WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+        "nhl_10utc_updater_schedule_$UPDATE_WORKER_ID",
+        ExistingPeriodicWorkPolicy.KEEP,
+        dailyRequest
+    )
 }

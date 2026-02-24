@@ -1,5 +1,6 @@
 package com.example.nhlsheetmanager.models
 
+// Google sheets
 const val SPREADSHEET_ID = "1ccpSsFUQhYyB32lUhnhx_FPqeIP7pdbty2uaBwofUQA"
 const val SPREADSHEET_SCOPE = "https://www.googleapis.com/auth/spreadsheets"
 const val START_DATA_ROW_INDEX = 2
@@ -8,3 +9,9 @@ const val COLUMNS_SUM = 4
 const val START_DATA_COLUMN_INDEX = "A"
 const val END_DATA_COLUMN_INDEX = "D"
 const val POINTS_COLUMN_INDEX = "C"
+
+// Notifications
+const val NOTIFICATION_CHANNEL_ID = "1352"
+
+// Update worker
+const val UPDATE_WORKER_ID = "1356"

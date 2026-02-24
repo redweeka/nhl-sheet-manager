@@ -3,24 +3,26 @@ package com.example.nhlsheetmanager.data.workers
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.os.Build
-import android.os.Handler
-import android.os.Looper
-import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.nhlsheetmanager.R
+import com.example.nhlsheetmanager.models.NOTIFICATION_CHANNEL_ID
+import com.example.nhlsheetmanager.models.UPDATE_WORKER_ID
 
 class NhlSheetUpdateWorker(context: Context, workerParameters: WorkerParameters) : Worker(context, workerParameters) {
     private val TAG = this::class.simpleName
 
     override fun doWork(): Result {
-        updateNhlSheet()
+        return try {
+            updateNhlSheet()
 
-        showNotification("NHL sheet updater", "Sheet was updated!")
+            showNotification("NHL sheet updater #$UPDATE_WORKER_ID", "Sheet was updated!")
 
-        return Result.success()
+            Result.success()
+        } catch (e: Exception) {
+            Result.retry()
+        }
     }
 
     private fun updateNhlSheet() {
@@ -29,7 +31,7 @@ class NhlSheetUpdateWorker(context: Context, workerParameters: WorkerParameters)
 
     private fun showNotification(title: String, message: String) {
         (applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
-            val channelId = "channel1352"
+            val channelId = "channel_$NOTIFICATION_CHANNEL_ID"
 
             val channel = NotificationChannel(
                 channelId,
