@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,27 +17,25 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.example.nhlsheetmanager.data.repositories.NhlRepository
-import com.example.nhlsheetmanager.data.repositories.SheetsRepository
-import com.example.nhlsheetmanager.data.workers.NhlSheetUpdateWorker
+import com.example.nhlsheetmanager.domain.workers.NhlSheetUpdateWorker
 import com.example.nhlsheetmanager.models.NetworkUtils.isNetworkAvailable
 import com.example.nhlsheetmanager.models.PermissionsUtils.handlePermissions
 import com.example.nhlsheetmanager.models.TimeUtils.getInitialDelayForHourUtc
 import com.example.nhlsheetmanager.models.UPDATE_WORKER_ID
-import com.example.nhlsheetmanager.ui.theme.NhlSheetManagerTheme
 import com.example.nhlsheetmanager.viewModels.NhlViewModel
+import com.example.nhlsheetmanager.views.theme.NhlSheetManagerTheme
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val TAG = this::class.simpleName
+
+    private val nhlViewModel: NhlViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.d(TAG, "onCreate: ")
         super.onCreate(savedInstanceState)
-
-        val nhlRepository = NhlRepository()
-        val sheetsRepository = SheetsRepository(resources)
-        val nhlViewModel = NhlViewModel(nhlRepository, sheetsRepository)
 
         setContent {
             NhlSheetManagerTheme {

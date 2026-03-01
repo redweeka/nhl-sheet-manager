@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.data.workers
+package com.example.nhlsheetmanager.domain.workers
 
 import android.app.NotificationChannel
 import android.app.NotificationManager

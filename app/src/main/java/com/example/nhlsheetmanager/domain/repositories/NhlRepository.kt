@@ -1,14 +1,18 @@
-package com.example.nhlsheetmanager.data.repositories
+package com.example.nhlsheetmanager.domain.repositories
 
 import android.util.Log
+import com.example.nhlsheetmanager.domain.repositories.repositoriesInterfaces.NhlRepositoryInterface
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonSyntaxException
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class NhlRepository {
+@Singleton
+class NhlRepository @Inject constructor() : NhlRepositoryInterface {
     private val TAG = this::class.simpleName
 
     // Function to get raw player data
@@ -71,7 +75,7 @@ class NhlRepository {
     }
 
     // Extract and return player points from nhl player json
-    fun getPlayerCurrentSeasonPointsById(playerId: String): Int {
+    override fun getPlayerCurrentSeasonPointsById(playerId: String): Int {
         var playerPoints = 0
 
         val jsonData = getPlayerById(playerId)

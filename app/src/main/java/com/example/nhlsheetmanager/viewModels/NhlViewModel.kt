@@ -2,18 +2,21 @@ package com.example.nhlsheetmanager.viewModels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.nhlsheetmanager.data.repositories.NhlRepository
-import com.example.nhlsheetmanager.data.repositories.SheetsRepository
+import com.example.nhlsheetmanager.domain.repositories.repositoriesInterfaces.NhlRepositoryInterface
+import com.example.nhlsheetmanager.domain.repositories.repositoriesInterfaces.SheetsRepositoryInterface
 import com.example.nhlsheetmanager.models.Player
 import com.example.nhlsheetmanager.models.UpdateState
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NhlViewModel(
-    private val nhlRepository: NhlRepository,
-    private val sheetsRepository: SheetsRepository
+@HiltViewModel
+class NhlViewModel @Inject constructor(
+    private val nhlRepository: NhlRepositoryInterface,
+    private val sheetsRepository: SheetsRepositoryInterface
 ) : ViewModel() {
     private val TAG = this::class.simpleName
 

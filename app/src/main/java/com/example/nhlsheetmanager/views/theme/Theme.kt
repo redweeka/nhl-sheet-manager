@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.ui.theme
+package com.example.nhlsheetmanager.views.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

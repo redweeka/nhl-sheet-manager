@@ -1,31 +1,26 @@
-package com.example.nhlsheetmanager.data.repositories
+package com.example.nhlsheetmanager.domain.repositories
 
-import android.content.res.Resources
-import com.example.nhlsheetmanager.R
+import com.example.nhlsheetmanager.domain.repositories.repositoriesInterfaces.SheetsRepositoryInterface
 import com.example.nhlsheetmanager.models.COLUMNS_SUM
 import com.example.nhlsheetmanager.models.END_DATA_COLUMN_INDEX
 import com.example.nhlsheetmanager.models.END_DATA_ROW_INDEX
 import com.example.nhlsheetmanager.models.POINTS_COLUMN_INDEX
 import com.example.nhlsheetmanager.models.Player
 import com.example.nhlsheetmanager.models.SPREADSHEET_ID
-import com.example.nhlsheetmanager.models.SPREADSHEET_SCOPE
 import com.example.nhlsheetmanager.models.START_DATA_COLUMN_INDEX
 import com.example.nhlsheetmanager.models.START_DATA_ROW_INDEX
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.http.HttpRequestInitializer
-import com.google.api.client.json.JsonFactory
-import com.google.api.client.json.gson.GsonFactory
 import com.google.api.services.sheets.v4.Sheets
 import com.google.api.services.sheets.v4.model.ValueRange
-import com.google.auth.http.HttpCredentialsAdapter
-import com.google.auth.oauth2.GoogleCredentials
-import java.io.InputStream
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class SheetsRepository(private val resources: Resources) {
+@Singleton
+class SheetsRepository @Inject constructor(
+    private val sheetsService: Sheets
+) : SheetsRepositoryInterface {
     private val TAG = this::class.simpleName
-    private val sheetsService = createSheetsService()
 
-    fun getPlayers(): List<Player> {
+    override fun getPlayers(): List<Player> {
         val players = mutableListOf<Player>()
         var ownerName = ""
 
@@ -61,7 +56,7 @@ class SheetsRepository(private val resources: Resources) {
         return players
     }
 
-    fun updateRemotePlayers(players: List<Player>) {
+    override fun updateRemotePlayers(players: List<Player>) {
         players.forEach { player ->
             if (player.playerUpdatedPoints > player.playerPreviousPoints) {
                 // Wrap the data so it feat the sheet convention. i.e. [[data]]
@@ -74,24 +69,5 @@ class SheetsRepository(private val resources: Resources) {
                 ).setValueInputOption("USER_ENTERED").execute()
             }
         }
-    }
-
-    private fun loadGoogleCredentials(): GoogleCredentials {
-        val inputStream: InputStream = resources.openRawResource(R.raw.credentials)
-
-        return GoogleCredentials.fromStream(inputStream).createScoped(SPREADSHEET_SCOPE)
-    }
-
-    private fun createSheetsService(): Sheets {
-        val googleCredentials = loadGoogleCredentials()
-        val transport = GoogleNetHttpTransport.newTrustedTransport()
-        val jsonFactory: JsonFactory = GsonFactory.getDefaultInstance()
-
-        // Wrap GoogleCredentials in HttpCredentialsAdapter
-        val requestInitializer: HttpRequestInitializer = HttpCredentialsAdapter(googleCredentials)
-
-        return Sheets.Builder(transport, jsonFactory, requestInitializer)
-            .setApplicationName("Google Sheets API Kotlin")
-            .build()
     }
 }

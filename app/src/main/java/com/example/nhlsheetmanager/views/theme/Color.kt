@@ -1,4 +1,4 @@
-package com.example.nhlsheetmanager.ui.theme
+package com.example.nhlsheetmanager.views.theme
 
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
