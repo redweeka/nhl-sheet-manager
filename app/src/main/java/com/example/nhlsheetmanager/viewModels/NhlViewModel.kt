@@ -33,19 +33,27 @@ class NhlViewModel @Inject constructor(
             val notUpdatedPlayers = sheetsRepository.getPlayers()
 
             _updateState.value = UpdateState.FETCHING_PLAYERS_POINTS
-            updatePlayersOneByOne(notUpdatedPlayers)
+            updateLocalPlayersPoints(notUpdatedPlayers)
 
             _updateState.value = UpdateState.UPDATING_PLAYERS_TO_SHEET
-            sheetsRepository.updateRemotePlayers(updatedPlayers.value)
+            updateRemotePlayersPoints(updatedPlayers.value)
 
             _updateState.value = UpdateState.UP_TO_DATE
         }
     }
 
-    private fun updatePlayersOneByOne(notUpdatedPlayers: List<Player>) {
+    private fun updateRemotePlayersPoints(localPlayers: List<Player>) {
+        localPlayers.forEach { player ->
+            if (player.playerUpdatedPoints > player.playerPreviousPoints) {
+                sheetsRepository.updateRemotePlayerPoints(player.row, player.playerUpdatedPoints)
+            }
+        }
+    }
+
+    private fun updateLocalPlayersPoints(localPlayers: List<Player>) {
         _updatedPlayers.value = mutableListOf()
 
-        notUpdatedPlayers.forEach { player ->
+        localPlayers.forEach { player ->
             player.playerUpdatedPoints =
                 nhlRepository.getPlayerCurrentSeasonPointsById(player.playerId)
 

@@ -14,4 +14,4 @@ const val POINTS_COLUMN_INDEX = "C"
 const val NOTIFICATION_CHANNEL_ID = "1352"
 
 // Update worker
-const val UPDATE_WORKER_ID = "1357"
+const val UPDATE_WORKER_ID = "1358"

@@ -5,5 +5,5 @@ import com.example.nhlsheetmanager.models.Player
 interface SheetsRepositoryInterface {
     fun getPlayers(): List<Player>
 
-    fun updateRemotePlayers(players: List<Player>)
+    fun updateRemotePlayerPoints(row: Int, playerUpdatedPoints: Int)
 }

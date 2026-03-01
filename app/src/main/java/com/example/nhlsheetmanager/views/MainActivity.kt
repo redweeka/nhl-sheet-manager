@@ -82,18 +82,17 @@ class MainActivity : AppCompatActivity() {
 fun scheduleDaily10AmWorker(context: Context) {
     val delay = getInitialDelayForHourUtc()
 
-    val dailyRequest =
-        PeriodicWorkRequestBuilder<NhlSheetUpdateWorker>(
-            24, TimeUnit.HOURS, 15, TimeUnit.MINUTES
+    val dailyRequest = PeriodicWorkRequestBuilder<NhlSheetUpdateWorker>(
+        24, TimeUnit.HOURS, 15, TimeUnit.MINUTES
+    )
+        .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+        .setConstraints(
+            Constraints.Builder()
+                .setRequiresBatteryNotLow(true)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
         )
-            .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiresBatteryNotLow(true)
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .build()
+        .build()
 
     WorkManager.getInstance(context).enqueueUniquePeriodicWork(
         "nhl_10utc_updater_schedule_$UPDATE_WORKER_ID",

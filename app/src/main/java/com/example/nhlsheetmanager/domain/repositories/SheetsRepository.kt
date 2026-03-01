@@ -56,18 +56,14 @@ class SheetsRepository @Inject constructor(
         return players
     }
 
-    override fun updateRemotePlayers(players: List<Player>) {
-        players.forEach { player ->
-            if (player.playerUpdatedPoints > player.playerPreviousPoints) {
-                // Wrap the data so it feat the sheet convention. i.e. [[data]]
-                val valueRange = ValueRange().setValues(listOf(listOf(player.playerUpdatedPoints)))
+    override fun updateRemotePlayerPoints(row: Int, playerUpdatedPoints: Int) {
+        val sheetsDataStructure = listOf(listOf(playerUpdatedPoints))
+        val valueRange = ValueRange().setValues(sheetsDataStructure)
 
-                sheetsService.spreadsheets().values().update(
-                    SPREADSHEET_ID,
-                    "sheet1!$POINTS_COLUMN_INDEX${player.row}",
-                    valueRange
-                ).setValueInputOption("USER_ENTERED").execute()
-            }
-        }
+        sheetsService.spreadsheets().values().update(
+            SPREADSHEET_ID,
+            "sheet1!$POINTS_COLUMN_INDEX$row",
+            valueRange
+        ).setValueInputOption("USER_ENTERED").execute()
     }
 }
